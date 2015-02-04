@@ -1,16 +1,11 @@
 from setuptools import setup, find_packages
 
+README=open('README.md').read()
+
 setup(name='rangehttpserver',
-      version='1.0.0',
+      version='1.0.1',
       description='SimpleHTTPServer with support for Range requests',
-      long_description=(
-      '''Drop-in replacement for SimpleHTTPServer with support for HTTP Range requests.
-
-      Usage:
-
-          pip install rangehttpserver
-          python -m RangeHTTPServer
-'''),
+      long_description=README,
       author='Dan Vanderkam',
       author_email='danvdk@gmail.com',
       url='https://github.com/danvk/RangeHTTPServer/',
