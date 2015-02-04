@@ -83,7 +83,7 @@ class RangeRequestHandler(SimpleHTTPRequestHandler):
 
         # SimpleHTTPRequestHandler uses shutil.copyfileobj, which doesn't let
         # you stop the copying before the end of the file.
-        start, stop = self.range
+        start, stop = self.range  # set in send_head()
         copy_byte_range(source, outputfile, start, stop)
 
 
