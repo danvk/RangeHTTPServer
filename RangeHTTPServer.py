@@ -17,12 +17,12 @@ from SimpleHTTPServer import SimpleHTTPRequestHandler
 import SimpleHTTPServer
 
 
-def copy_byte_range(infile, outfile, start, stop=None, bufsize=16*1024):
+def copy_byte_range(infile, outfile, start=None, stop=None, bufsize=16*1024):
     '''Like shutil.copyfileobj, but only copy a range of the streams.
 
     Both start and stop are inclusive.
     '''
-    infile.seek(start)
+    if start is not None: infile.seek(start)
     while 1:
         to_read = min(bufsize, stop + 1 - infile.tell() if stop else bufsize)
         buf = infile.read(to_read)
@@ -31,15 +31,21 @@ def copy_byte_range(infile, outfile, start, stop=None, bufsize=16*1024):
         outfile.write(buf)
 
 
-BYTE_RANGE_RE = re.compile(r'bytes=(\d+)-(\d+)')
+BYTE_RANGE_RE = re.compile(r'bytes=(\d+)-(\d+)?$')
 def parse_byte_range(byte_range):
-    '''Returns the two numbers in 'bytes=123-456' or throws ValueError.'''
+    '''Returns the two numbers in 'bytes=123-456' or throws ValueError.
+
+    The last number or both numbers may be None.
+    '''
+    if byte_range.strip() == '':
+        return None, None
+
     m = BYTE_RANGE_RE.match(byte_range)
     if not m:
         raise ValueError('Invalid byte range %s' % byte_range)
 
-    first, last = [int(x) for x in m.groups()]
-    if last < first:
+    first, last = [x and int(x) for x in m.groups()]
+    if last and last < first:
         raise ValueError('Invalid byte range %s' % byte_range)
     return first, last
 
@@ -57,7 +63,7 @@ class RangeRequestHandler(SimpleHTTPRequestHandler):
             return SimpleHTTPRequestHandler.send_head(self)
         self.range = parse_byte_range(self.headers['Range'])
         first, last = self.range
-  
+
         # Mirroring SimpleHTTPServer.py here
         path = self.translate_path(self.path)
         f = None
@@ -69,10 +75,13 @@ class RangeRequestHandler(SimpleHTTPRequestHandler):
             return None
         self.send_response(206)
         self.send_header('Content-type', ctype)
-        fs = os.fstat(f.fileno())
         self.send_header('Accept-Ranges', 'bytes')
+
+        fs = os.fstat(f.fileno())
+        response_length = last - first + 1 if last else fs[6] - first
+
         self.send_header('Content-Range', 'bytes %s-%s/%s' % (first, last, fs[6]))
-        self.send_header('Content-Length', str(last - first + 1))
+        self.send_header('Content-Length', str(response_length))
         self.send_header('Last-Modified', self.date_time_string(fs.st_mtime))
         self.end_headers()
         return f
