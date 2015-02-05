@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/danvk/RangeHTTPServer.svg?branch=master)](https://travis-ci.org/danvk/RangeHTTPServer)
+
 # RangeHTTPServer
 SimpleHTTPServer with support for Range requests
 
