@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/danvk/RangeHTTPServer.svg?branch=master)](https://travis-ci.org/danvk/RangeHTTPServer)
+[![Build Status](https://travis-ci.org/danvk/RangeHTTPServer.svg?branch=master)](https://travis-ci.org/danvk/RangeHTTPServer) [![Coverage Status](https://coveralls.io/repos/danvk/RangeHTTPServer/badge.svg)](https://coveralls.io/r/danvk/RangeHTTPServer)
 
 # RangeHTTPServer
 SimpleHTTPServer with support for Range requests
