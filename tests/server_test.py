@@ -86,3 +86,18 @@ def test_mid_file_range_request():
         'Content-Range': 'bytes 6-10/17',
         'Content-Length': '5'
         }, headers_of_note(r))
+
+
+def test_404():
+    r = requests.get('http://localhost:8712/tests/nonexistent.txt',
+                     headers={'Range': 'bytes=6-10'})
+    eq_(404, r.status_code)
+
+
+def test_bad_range():
+    r = requests.get('http://localhost:8712/tests/data.txt',
+                     headers={'Range': 'bytes=abc'})
+    eq_(400, r.status_code)
+
+
+# TODO(danvk): support & test 416 Requested Range Not Satisfiable
