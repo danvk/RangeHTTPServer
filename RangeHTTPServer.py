@@ -78,9 +78,13 @@ class RangeRequestHandler(SimpleHTTPRequestHandler):
         self.send_header('Accept-Ranges', 'bytes')
 
         fs = os.fstat(f.fileno())
-        response_length = last - first + 1 if last else fs[6] - first
+        file_len = fs[6]
+        if last is None:
+            last = file_len - 1
+        response_length = last - first + 1
 
-        self.send_header('Content-Range', 'bytes %s-%s/%s' % (first, last, fs[6]))
+        self.send_header('Content-Range',
+                         'bytes %s-%s/%s' % (first, last, file_len))
         self.send_header('Content-Length', str(response_length))
         self.send_header('Last-Modified', self.date_time_string(fs.st_mtime))
         self.end_headers()
@@ -96,5 +100,9 @@ class RangeRequestHandler(SimpleHTTPRequestHandler):
         copy_byte_range(source, outputfile, start, stop)
 
 
-if __name__ == '__main__':
+def run():
     SimpleHTTPServer.test(HandlerClass=RangeRequestHandler)
+
+
+if __name__ == '__main__':
+    run()
