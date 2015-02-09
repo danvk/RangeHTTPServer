@@ -96,5 +96,9 @@ class RangeRequestHandler(SimpleHTTPRequestHandler):
         copy_byte_range(source, outputfile, start, stop)
 
 
-if __name__ == '__main__':
+def run():
     SimpleHTTPServer.test(HandlerClass=RangeRequestHandler)
+
+
+if __name__ == '__main__':
+    run()
