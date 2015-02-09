@@ -18,6 +18,7 @@ def setup():
     def start_server():
         global httpd
         RangeRequestHandler.protocol_version = 'HTTP/1.0'
+        # TODO(danvk): pick a random, available port
         httpd = HTTPServer(('', 8712), RangeRequestHandler)
         httpd.serve_forever()
 
@@ -32,6 +33,56 @@ def teardown():
     server_thread.join()
 
 
-def test_server():
+def headers_of_note(response):
+    '''Returns a dict of just the interesting headers for RangeHTTPServer.'''
+    return {k: response.headers.get(k) for k in [
+        'Content-Type',
+        'Accept-Ranges',
+        'Content-Range',
+        'Content-Length']}
+
+
+def test_simple_request():
     r = requests.get('http://localhost:8712/tests/data.txt')
+    eq_(200, r.status_code)
     eq_('0123456789abcdef\n', r.text)
+    eq_('text/plain', r.headers['content-type'])
+
+
+def test_range_request():
+    r = requests.get('http://localhost:8712/tests/data.txt',
+                     headers={'Range': 'bytes=0-9'})
+    eq_(206, r.status_code)
+    eq_('0123456789', r.text)
+    eq_({
+        'Content-Type': 'text/plain',
+        'Accept-Ranges': 'bytes',
+        'Content-Range': 'bytes 0-9/17',
+        'Content-Length': '10'
+        }, headers_of_note(r))
+
+
+def test_open_range_request():
+    r = requests.get('http://localhost:8712/tests/data.txt',
+                     headers={'Range': 'bytes=10-'})
+    eq_(206, r.status_code)
+    eq_('abcdef\n', r.text)
+    eq_({
+        'Content-Type': 'text/plain',
+        'Accept-Ranges': 'bytes',
+        'Content-Range': 'bytes 10-16/17',
+        'Content-Length': '7'
+        }, headers_of_note(r))
+
+
+def test_mid_file_range_request():
+    r = requests.get('http://localhost:8712/tests/data.txt',
+                     headers={'Range': 'bytes=6-10'})
+    eq_(206, r.status_code)
+    eq_('6789a', r.text)
+    eq_({
+        'Content-Type': 'text/plain',
+        'Accept-Ranges': 'bytes',
+        'Content-Range': 'bytes 6-10/17',
+        'Content-Length': '5'
+        }, headers_of_note(r))
