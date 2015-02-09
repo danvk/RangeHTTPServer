@@ -100,4 +100,33 @@ def test_bad_range():
     eq_(400, r.status_code)
 
 
-# TODO(danvk): support & test 416 Requested Range Not Satisfiable
+def test_range_past_eof():
+    r = requests.get('http://localhost:8712/tests/data.txt',
+                     headers={'Range': 'bytes=10-100'})
+    eq_(206, r.status_code)
+    eq_('abcdef\n', r.text)
+    eq_({
+        'Content-Type': 'text/plain',
+        'Accept-Ranges': 'bytes',
+        'Content-Range': 'bytes 10-16/17',
+        'Content-Length': '7'
+        }, headers_of_note(r))
+
+
+def test_range_at_eof():
+    r = requests.get('http://localhost:8712/tests/data.txt',
+                     headers={'Range': 'bytes=16-'})
+    eq_(206, r.status_code)
+    eq_('\n', r.text)
+    eq_({
+        'Content-Type': 'text/plain',
+        'Accept-Ranges': 'bytes',
+        'Content-Range': 'bytes 16-16/17',
+        'Content-Length': '1'
+        }, headers_of_note(r))
+
+
+def test_range_starting_past_eof():
+    r = requests.get('http://localhost:8712/tests/data.txt',
+                     headers={'Range': 'bytes=17-'})
+    eq_(416, r.status_code)  # "Requested Range Not Satisfiable"
