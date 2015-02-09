@@ -77,13 +77,18 @@ class RangeRequestHandler(SimpleHTTPRequestHandler):
         except IOError:
             self.send_error(404, 'File not found')
             return None
+
+        fs = os.fstat(f.fileno())
+        file_len = fs[6]
+        if first >= file_len:
+            self.send_error(416, 'Requested Range Not Satisfiable')
+            return None
+
         self.send_response(206)
         self.send_header('Content-type', ctype)
         self.send_header('Accept-Ranges', 'bytes')
 
-        fs = os.fstat(f.fileno())
-        file_len = fs[6]
-        if last is None:
+        if last is None or last >= file_len:
             last = file_len - 1
         response_length = last - first + 1
 

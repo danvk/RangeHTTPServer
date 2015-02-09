@@ -3,3 +3,6 @@ omit =
     */python?.?/*
     */site-packages/nose/*
     *_test.py
+exclude_lines =
+    # Don't complain if non-runnable code isn't run:
+    if __name__ == .__main__.:
