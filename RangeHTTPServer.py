@@ -61,7 +61,11 @@ class RangeRequestHandler(SimpleHTTPRequestHandler):
         if 'Range' not in self.headers:
             self.range = None
             return SimpleHTTPRequestHandler.send_head(self)
-        self.range = parse_byte_range(self.headers['Range'])
+        try:
+            self.range = parse_byte_range(self.headers['Range'])
+        except ValueError as e:
+            self.send_error(400, 'Invalid byte range')
+            return None
         first, last = self.range
 
         # Mirroring SimpleHTTPServer.py here
@@ -100,9 +104,5 @@ class RangeRequestHandler(SimpleHTTPRequestHandler):
         copy_byte_range(source, outputfile, start, stop)
 
 
-def run():
-    SimpleHTTPServer.test(HandlerClass=RangeRequestHandler)
-
-
 if __name__ == '__main__':
-    run()
+    SimpleHTTPServer.test(HandlerClass=RangeRequestHandler)

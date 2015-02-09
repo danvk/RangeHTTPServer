@@ -13,6 +13,13 @@ def test_parse_byte_range():
     eq_((None, None), RangeHTTPServer.parse_byte_range(''))
     eq_((10, None), RangeHTTPServer.parse_byte_range('bytes=10-'))
 
+    with assert_raises(ValueError):
+        RangeHTTPServer.parse_byte_range('bytes=abc')
+    with assert_raises(ValueError):
+        RangeHTTPServer.parse_byte_range('characters=0-10')
+    with assert_raises(ValueError):
+        RangeHTTPServer.parse_byte_range('bytes=100-2')
+
 
 def test_copy_byte_range():
     inbuffer = StringIO('0123456789abcdefghijklmnopqrstuvwxyz')
