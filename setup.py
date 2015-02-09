@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 README=open('README.md').read()
 
 setup(name='rangehttpserver',
-      version='1.0.1',
+      version='1.1.0',
       description='SimpleHTTPServer with support for Range requests',
       long_description=README,
       author='Dan Vanderkam',
