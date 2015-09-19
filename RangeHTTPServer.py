@@ -1,10 +1,10 @@
 #!/usr/bin/python
 '''
-Use this in the same way as Python's http.server:
+Use this in the same way as Python's http.server / SimpleHTTPServer:
 
   python -m RangeHTTPServer [port]
 
-The only difference from HTTPServer is that RangeHTTPServer supports
+The only difference from http.server / SimpleHTTPServer is that RangeHTTPServer supports
 'Range:' headers to load portions of files. This is helpful for doing local web
 development with genomic data files, which tend to be to large to load into the
 browser all at once.
