@@ -6,10 +6,7 @@ from RangeHTTPServer import RangeRequestHandler
 
 from nose.tools import *
 
-try:
-    from http.server import HTTPServer
-except ImportError:
-    from BaseHTTPServer import HTTPServer
+from BaseHTTPServer import HTTPServer
 import requests
 import threading
 import time

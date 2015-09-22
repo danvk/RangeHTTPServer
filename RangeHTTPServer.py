@@ -1,10 +1,10 @@
 #!/usr/bin/python
 '''
-Use this in the same way as Python's http.server / SimpleHTTPServer:
+Use this in the same way as Python's SimpleHTTPServer:
 
   python -m RangeHTTPServer [port]
 
-The only difference from http.server / SimpleHTTPServer is that RangeHTTPServer supports
+The only difference from SimpleHTTPServer is that RangeHTTPServer supports
 'Range:' headers to load portions of files. This is helpful for doing local web
 development with genomic data files, which tend to be to large to load into the
 browser all at once.
@@ -13,13 +13,8 @@ browser all at once.
 import os
 import re
 import sys
-import argparse
-try:
-    from http.server import SimpleHTTPRequestHandler
-    import http.server as http_server
-except ImportError:
-    from SimpleHTTPServer import SimpleHTTPRequestHandler
-    import SimpleHTTPServer as http_server
+from SimpleHTTPServer import SimpleHTTPRequestHandler
+import SimpleHTTPServer
 
 
 def copy_byte_range(infile, outfile, start=None, stop=None, bufsize=16*1024):
@@ -115,13 +110,4 @@ class RangeRequestHandler(SimpleHTTPRequestHandler):
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--bind', '-b', default='', metavar='ADDRESS',
-                        help='Specify alternate bind address '
-                             '[default: all interfaces]')
-    parser.add_argument('port', action='store',
-                        default=8000, type=int,
-                        nargs='?',
-                        help='Specify alternate port [default: 8000]')
-    args = parser.parse_args()
-    http_server.test(HandlerClass=RangeRequestHandler, port=args.port, bind=args.bind)
+    SimpleHTTPServer.test(HandlerClass=RangeRequestHandler)
