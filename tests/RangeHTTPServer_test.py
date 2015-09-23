@@ -4,7 +4,7 @@ sys.path = ['.'] + sys.path
 import RangeHTTPServer
 
 from nose.tools import *
-from io import BytesIO
+from StringIO import StringIO
 
 
 def test_parse_byte_range():
@@ -22,25 +22,25 @@ def test_parse_byte_range():
 
 
 def test_copy_byte_range():
-    inbuffer = BytesIO(b'0123456789abcdefghijklmnopqrstuvwxyz')
-    outbuffer = BytesIO()
+    inbuffer = StringIO('0123456789abcdefghijklmnopqrstuvwxyz')
+    outbuffer = StringIO()
 
     RangeHTTPServer.copy_byte_range(inbuffer, outbuffer, 4, 10)
-    eq_(b'456789a', outbuffer.getvalue())
+    eq_('456789a', outbuffer.getvalue())
 
-    outbuffer = BytesIO()
+    outbuffer = StringIO()
     RangeHTTPServer.copy_byte_range(inbuffer, outbuffer, 0, 4)
-    eq_(b'01234', outbuffer.getvalue())
+    eq_('01234', outbuffer.getvalue())
 
-    outbuffer = BytesIO()
+    outbuffer = StringIO()
     RangeHTTPServer.copy_byte_range(inbuffer, outbuffer, 26)
-    eq_(b'qrstuvwxyz', outbuffer.getvalue())
+    eq_('qrstuvwxyz', outbuffer.getvalue())
 
-    outbuffer = BytesIO()
+    outbuffer = StringIO()
     RangeHTTPServer.copy_byte_range(inbuffer, outbuffer, 0, 9, 10)
-    eq_(b'0123456789', outbuffer.getvalue())
+    eq_('0123456789', outbuffer.getvalue())
 
     inbuffer.seek(0)
-    outbuffer = BytesIO()
+    outbuffer = StringIO()
     RangeHTTPServer.copy_byte_range(inbuffer, outbuffer)
-    eq_(b'0123456789abcdefghijklmnopqrstuvwxyz', outbuffer.getvalue())
+    eq_('0123456789abcdefghijklmnopqrstuvwxyz', outbuffer.getvalue())
