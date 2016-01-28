@@ -4,7 +4,8 @@ sys.path = ['.'] + sys.path
 import RangeHTTPServer
 
 from nose.tools import *
-from StringIO import StringIO
+
+from io import StringIO
 
 
 def test_parse_byte_range():
@@ -22,7 +23,7 @@ def test_parse_byte_range():
 
 
 def test_copy_byte_range():
-    inbuffer = StringIO('0123456789abcdefghijklmnopqrstuvwxyz')
+    inbuffer = StringIO(u'0123456789abcdefghijklmnopqrstuvwxyz')
     outbuffer = StringIO()
 
     RangeHTTPServer.copy_byte_range(inbuffer, outbuffer, 4, 10)
