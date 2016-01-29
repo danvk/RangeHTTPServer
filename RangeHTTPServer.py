@@ -13,8 +13,16 @@ browser all at once.
 import os
 import re
 import sys
-from SimpleHTTPServer import SimpleHTTPRequestHandler
-import SimpleHTTPServer
+
+try:
+    # Python3
+    from http.server import SimpleHTTPRequestHandler
+    import http.server as SimpleHTTPServer
+
+except ImportError:
+    # Python 2
+    from SimpleHTTPServer import SimpleHTTPRequestHandler
+    import SimpleHTTPServer
 
 
 def copy_byte_range(infile, outfile, start=None, stop=None, bufsize=16*1024):
