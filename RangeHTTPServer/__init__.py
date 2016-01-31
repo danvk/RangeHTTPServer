@@ -17,12 +17,10 @@ import sys
 try:
     # Python3
     from http.server import SimpleHTTPRequestHandler
-    import http.server as SimpleHTTPServer
 
 except ImportError:
     # Python 2
     from SimpleHTTPServer import SimpleHTTPRequestHandler
-    import SimpleHTTPServer
 
 
 def copy_byte_range(infile, outfile, start=None, stop=None, bufsize=16*1024):
@@ -115,7 +113,3 @@ class RangeRequestHandler(SimpleHTTPRequestHandler):
         # you stop the copying before the end of the file.
         start, stop = self.range  # set in send_head()
         copy_byte_range(source, outputfile, start, stop)
-
-
-if __name__ == '__main__':
-    SimpleHTTPServer.test(HandlerClass=RangeRequestHandler)

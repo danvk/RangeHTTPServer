@@ -6,7 +6,7 @@ setup(name='rangehttpserver',
       author='Dan Vanderkam',
       author_email='danvdk@gmail.com',
       url='https://github.com/danvk/RangeHTTPServer/',
-      packages=['.'],
+      packages=['RangeHTTPServer'],
       install_requires=[],
       classifiers=[
           'Environment :: Console',
