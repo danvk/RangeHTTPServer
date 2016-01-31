@@ -12,7 +12,6 @@ browser all at once.
 
 import os
 import re
-import sys
 
 try:
     # Python3
