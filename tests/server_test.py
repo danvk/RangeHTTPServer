@@ -1,7 +1,6 @@
 # Import RangeHTTPServer from this project, not the global install.
 import sys
 sys.path = ['.'] + sys.path
-import RangeHTTPServer
 from RangeHTTPServer import RangeRequestHandler
 
 from nose.tools import *

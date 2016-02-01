@@ -1,4 +1,4 @@
-from setuptools import setup, find_packages
+from setuptools import setup
 
 setup(name='rangehttpserver',
       version='1.1.1',
@@ -6,7 +6,7 @@ setup(name='rangehttpserver',
       author='Dan Vanderkam',
       author_email='danvdk@gmail.com',
       url='https://github.com/danvk/RangeHTTPServer/',
-      packages=['.'],
+      packages=['RangeHTTPServer'],
       install_requires=[],
       classifiers=[
           'Environment :: Console',
