@@ -1,7 +1,7 @@
 from setuptools import setup
 
 setup(name='rangehttpserver',
-      version='1.1.1',
+      version='1.2.0',
       description='SimpleHTTPServer with support for Range requests',
       author='Dan Vanderkam',
       author_email='danvdk@gmail.com',
