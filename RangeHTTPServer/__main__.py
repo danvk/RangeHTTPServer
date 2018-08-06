@@ -20,5 +20,11 @@ except ImportError:
 
 from . import RangeRequestHandler
 
+import argparse
+parser = argparse.ArgumentParser()
+parser.add_argument('port', action='store',
+                    default=8000, type=int,
+                    nargs='?', help='Specify alternate port [default: 8000]')
 
-SimpleHTTPServer.test(HandlerClass=RangeRequestHandler)
+args = parser.parse_args()
+SimpleHTTPServer.test(HandlerClass=RangeRequestHandler, port=args.port)
