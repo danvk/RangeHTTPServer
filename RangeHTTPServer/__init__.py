@@ -1,4 +1,3 @@
-#!/usr/bin/python
 '''
 Use this in the same way as Python's SimpleHTTPServer:
 
