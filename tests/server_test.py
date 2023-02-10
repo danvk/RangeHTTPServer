@@ -3,7 +3,7 @@ import sys
 sys.path = ['.'] + sys.path
 from RangeHTTPServer import RangeRequestHandler
 
-from nose.tools import *
+import pytest
 
 try:
     # Python 3
@@ -50,89 +50,89 @@ def headers_of_note(response):
 
 def test_simple_request():
     r = requests.get('http://localhost:8712/tests/data.txt')
-    eq_(200, r.status_code)
-    eq_('0123456789abcdef\n', r.text)
-    eq_('text/plain', r.headers['content-type'])
+    assert 200 == r.status_code
+    assert '0123456789abcdef\n' == r.text
+    assert 'text/plain' == r.headers['content-type']
 
 
 def test_range_request():
     r = requests.get('http://localhost:8712/tests/data.txt',
                      headers={'Range': 'bytes=0-9'})
-    eq_(206, r.status_code)
-    eq_('0123456789', r.text)
-    eq_({
+    assert 206 == r.status_code
+    assert '0123456789' == r.text
+    assert {
         'Content-Type': 'text/plain',
         'Accept-Ranges': 'bytes',
         'Content-Range': 'bytes 0-9/17',
         'Content-Length': '10'
-        }, headers_of_note(r))
+        } == headers_of_note(r)
 
 
 def test_open_range_request():
     r = requests.get('http://localhost:8712/tests/data.txt',
                      headers={'Range': 'bytes=10-'})
-    eq_(206, r.status_code)
-    eq_('abcdef\n', r.text)
-    eq_({
+    assert 206 == r.status_code
+    assert 'abcdef\n' == r.text
+    assert {
         'Content-Type': 'text/plain',
         'Accept-Ranges': 'bytes',
         'Content-Range': 'bytes 10-16/17',
         'Content-Length': '7'
-        }, headers_of_note(r))
+        } == headers_of_note(r)
 
 
 def test_mid_file_range_request():
     r = requests.get('http://localhost:8712/tests/data.txt',
                      headers={'Range': 'bytes=6-10'})
-    eq_(206, r.status_code)
-    eq_('6789a', r.text)
-    eq_({
+    assert 206 == r.status_code
+    assert '6789a' == r.text
+    assert {
         'Content-Type': 'text/plain',
         'Accept-Ranges': 'bytes',
         'Content-Range': 'bytes 6-10/17',
         'Content-Length': '5'
-        }, headers_of_note(r))
+        } == headers_of_note(r)
 
 
 def test_404():
     r = requests.get('http://localhost:8712/tests/nonexistent.txt',
                      headers={'Range': 'bytes=6-10'})
-    eq_(404, r.status_code)
+    assert 404 == r.status_code
 
 
 def test_bad_range():
     r = requests.get('http://localhost:8712/tests/data.txt',
                      headers={'Range': 'bytes=abc'})
-    eq_(400, r.status_code)
+    assert 400 == r.status_code
 
 
 def test_range_past_eof():
     r = requests.get('http://localhost:8712/tests/data.txt',
                      headers={'Range': 'bytes=10-100'})
-    eq_(206, r.status_code)
-    eq_('abcdef\n', r.text)
-    eq_({
+    assert 206 == r.status_code
+    assert 'abcdef\n' == r.text
+    assert {
         'Content-Type': 'text/plain',
         'Accept-Ranges': 'bytes',
         'Content-Range': 'bytes 10-16/17',
         'Content-Length': '7'
-        }, headers_of_note(r))
+        } == headers_of_note(r)
 
 
 def test_range_at_eof():
     r = requests.get('http://localhost:8712/tests/data.txt',
                      headers={'Range': 'bytes=16-'})
-    eq_(206, r.status_code)
-    eq_('\n', r.text)
-    eq_({
+    assert 206 == r.status_code
+    assert '\n' == r.text
+    assert {
         'Content-Type': 'text/plain',
         'Accept-Ranges': 'bytes',
         'Content-Range': 'bytes 16-16/17',
         'Content-Length': '1'
-        }, headers_of_note(r))
+        } == headers_of_note(r)
 
 
 def test_range_starting_past_eof():
     r = requests.get('http://localhost:8712/tests/data.txt',
                      headers={'Range': 'bytes=17-'})
-    eq_(416, r.status_code)  # "Requested Range Not Satisfiable"
+    assert 416 == r.status_code  # "Requested Range Not Satisfiable"
