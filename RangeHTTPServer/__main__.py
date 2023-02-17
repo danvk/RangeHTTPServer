@@ -25,6 +25,9 @@ parser = argparse.ArgumentParser()
 parser.add_argument('port', action='store',
                     default=8000, type=int,
                     nargs='?', help='Specify alternate port [default: 8000]')
+parser.add_argument('-b', '--bind', metavar='ADDRESS',
+                        help='Specify IP address'
+                             '[default: localhost]')
 
 args = parser.parse_args()
-SimpleHTTPServer.test(HandlerClass=RangeRequestHandler, port=args.port)
+SimpleHTTPServer.test(HandlerClass=RangeRequestHandler, port=args.port, bind=args.bind)
