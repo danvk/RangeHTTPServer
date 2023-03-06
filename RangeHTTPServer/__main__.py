@@ -25,6 +25,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument('port', action='store',
                     default=8000, type=int,
                     nargs='?', help='Specify alternate port [default: 8000]')
-
+parser.add_argument('-p', '--path', action='store', default=os.getcwd(), help='Specify HTTP directory [default = workingdir]')
 args = parser.parse_args()
+os.chdir(args.path)
 SimpleHTTPServer.test(HandlerClass=RangeRequestHandler, port=args.port)
