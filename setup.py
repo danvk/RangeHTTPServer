@@ -4,9 +4,10 @@ with open('README', encoding='utf8') as fh:
     long_description = fh.read()
 
 setup(name='rangehttpserver',
-      version='1.3.2',
+      version='1.3.3',
       description='SimpleHTTPServer with support for Range requests',
       long_description=long_description,
+      long_description_content_type='text/markdown',
       author='Dan Vanderkam',
       author_email='danvdk@gmail.com',
       url='https://github.com/danvk/RangeHTTPServer/',
