@@ -1,10 +1,10 @@
 from setuptools import setup
 
-with open('README.md', encoding='utf8') as fh:
+with open('README', encoding='utf8') as fh:
     long_description = fh.read()
 
 setup(name='rangehttpserver',
-      version='1.3.1',
+      version='1.3.2',
       description='SimpleHTTPServer with support for Range requests',
       long_description=long_description,
       author='Dan Vanderkam',
