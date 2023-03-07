@@ -91,7 +91,6 @@ class RangeRequestHandler(SimpleHTTPRequestHandler):
 
         self.send_response(206)
         self.send_header('Content-type', ctype)
-        self.send_header('Accept-Ranges', 'bytes')
 
         if last is None or last >= file_len:
             last = file_len - 1
@@ -103,6 +102,10 @@ class RangeRequestHandler(SimpleHTTPRequestHandler):
         self.send_header('Last-Modified', self.date_time_string(fs.st_mtime))
         self.end_headers()
         return f
+
+    def end_headers(self):
+        self.send_header('Accept-Ranges', 'bytes')
+        return SimpleHTTPRequestHandler.end_headers(self)
 
     def copyfile(self, source, outputfile):
         if not self.range:
