@@ -1,4 +1,4 @@
-'''
+"""
 Use this in the same way as Python's SimpleHTTPServer:
 
   python -m RangeHTTPServer [port]
@@ -7,7 +7,7 @@ The only difference from SimpleHTTPServer is that RangeHTTPServer supports
 'Range:' headers to load portions of files. This is helpful for doing local web
 development with genomic data files, which tend to be to large to load into the
 browser all at once.
-'''
+"""
 
 import os
 import re
@@ -22,10 +22,10 @@ except ImportError:
 
 
 def copy_byte_range(infile, outfile, start=None, stop=None, bufsize=16*1024):
-    '''Like shutil.copyfileobj, but only copy a range of the streams.
+    """Like shutil.copyfileobj, but only copy a range of the streams.
 
     Both start and stop are inclusive.
-    '''
+    """
     if start is not None: infile.seek(start)
     while 1:
         to_read = min(bufsize, stop + 1 - infile.tell() if stop else bufsize)
@@ -37,10 +37,10 @@ def copy_byte_range(infile, outfile, start=None, stop=None, bufsize=16*1024):
 
 BYTE_RANGE_RE = re.compile(r'bytes=(\d+)-(\d+)?$')
 def parse_byte_range(byte_range):
-    '''Returns the two numbers in 'bytes=123-456' or throws ValueError.
+    """Returns the two numbers in 'bytes=123-456' or throws ValueError.
 
     The last number or both numbers may be None.
-    '''
+    """
     if byte_range.strip() == '':
         return None, None
 
