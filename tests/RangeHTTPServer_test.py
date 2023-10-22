@@ -2,7 +2,7 @@
 import pytest
 
 from io import StringIO
-from range_http_server.request_handlers.range_request_handler import parse_byte_range, copy_byte_range
+from rangehttpserver.request_handlers.range_request_handler import parse_byte_range, copy_byte_range
 
 def test_parse_byte_range():
     assert (0, 499) == parse_byte_range('bytes=0-499')[0]

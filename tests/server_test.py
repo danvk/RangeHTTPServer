@@ -1,5 +1,5 @@
 # Import RangeHTTPServer from this project, not the global install.
-from range_http_server.request_handlers.range_request_handler import RangeRequestHandler
+from rangehttpserver.request_handlers.range_request_handler import RangeRequestHandler
 
 import pytest
 

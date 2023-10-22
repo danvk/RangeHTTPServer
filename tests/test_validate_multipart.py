@@ -8,7 +8,7 @@ from http.server import HTTPServer
 import threading
 import time
 
-from range_http_server.request_handlers.range_request_handler import RangeRequestHandler
+from rangehttpserver.request_handlers.range_request_handler import RangeRequestHandler
 
 httpd = None
 server_thread = None

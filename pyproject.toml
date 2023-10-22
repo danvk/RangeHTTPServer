@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "range_http_server"
+name = "rangehttpserver"
 version = "1.4.0"
 description = ""
 authors = ["Noah Parker <nparker@cyvl.ai>"]
