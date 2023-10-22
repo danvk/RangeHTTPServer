@@ -1,0 +1,30 @@
+[tool.poetry]
+name = "rangehttpserver"
+version = "1.4.0"
+description = ""
+authors = ["Noah Parker <nparker@cyvl.ai>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.8"
+pytest = "^7.4.2"
+pytest-cov = "^4.1.0"
+coveralls = "^3.3.1"
+requests-toolbelt = "^1.0.0"
+
+
+[tool.poetry.group.dev.dependencies]
+black = { extras = ["jupyter"], version = "^23.1.0" }
+mypy = "^1.1.1"
+pytest = "^7.2.2"
+pylint = "^2.17.0"
+boto3-stubs = { extras = ["codepipeline"], version = "^1.26.89" }
+poethepoet = "^0.24.1"
+
+[tool.poe.tasks]
+# Or `pylint mypackage` 
+lint = 'pylint --recursive=y --fail-under 5 .'
+format = 'black .'
+check-formatting = 'black --check .'
+check-types = 'mypy -p cyvl_data_fusion -p tests'
+unit-tests = 'pytest --cov'

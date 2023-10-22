@@ -9,6 +9,8 @@ development with genomic data files, which tend to be to large to load into the
 browser all at once.
 """
 
+from range_http_server.request_handlers.range_request_handler import RangeRequestHandler
+
 try:
     # Python3
     import http.server as SimpleHTTPServer
@@ -17,13 +19,15 @@ except ImportError:
     # Python 2
     import SimpleHTTPServer
 
-from . import RangeRequestHandler
 
-import argparse
-parser = argparse.ArgumentParser()
-parser.add_argument('port', action='store',
-                    default=8000, type=int,
-                    nargs='?', help='Specify alternate port [default: 8000]')
 
-args = parser.parse_args()
-SimpleHTTPServer.test(HandlerClass=RangeRequestHandler, port=args.port)
+def start():
+
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument('port', action='store',
+                        default=8000, type=int,
+                        nargs='?', help='Specify alternate port [default: 8000]')
+
+    args = parser.parse_args()
+    SimpleHTTPServer.test(HandlerClass=RangeRequestHandler, port=args.port)

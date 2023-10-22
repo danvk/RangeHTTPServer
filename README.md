@@ -7,7 +7,7 @@ SimpleHTTPServer with support for Range requests
 Quickstart:
 
     $ pip install rangehttpserver
-    $ python -m RangeHTTPServer
+    $ python -m rangehttpserver
     Serving HTTP on 0.0.0.0 port 8000 ...
 
 # Alternatives
