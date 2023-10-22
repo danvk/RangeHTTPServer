@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "range_http_server"
-version = "0.0.1"
+version = "1.4.0"
 description = ""
 authors = ["Noah Parker <nparker@cyvl.ai>"]
 readme = "README.md"

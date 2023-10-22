@@ -24,7 +24,6 @@ class RangeRequestHandler(SimpleHTTPRequestHandler):
             self.ranges = None
             return SimpleHTTPRequestHandler.send_head(self)
         try:
-            #self.range = parse_byte_range(self.headers['Range'])[0]
             self.ranges = parse_byte_range(self.headers['Range'])
         except ValueError as e:
             self.send_error(400, 'Invalid byte range')
@@ -56,9 +55,7 @@ class RangeRequestHandler(SimpleHTTPRequestHandler):
                 return None
             if last is None or last >= file_len:
                 last = file_len - 1
-            
-            #TODO: Update to incporate boundary string and section headers
-            
+                        
             value = 'bytes %s-%s/%s' % (first, last, file_len)
             
             message_length = last - first + 1
@@ -109,7 +106,6 @@ class RangeRequestHandler(SimpleHTTPRequestHandler):
                 outputfile.write(boundary_string.encode())
 
             copy_byte_range(source, outputfile, start, stop)
-            #copy in boundary string
         
         if len(self.ranges) > 1:
             #copy in final boundary string

@@ -9,7 +9,7 @@ development with genomic data files, which tend to be to large to load into the
 browser all at once.
 """
 
-from request_handlers.range_request_handler import RangeRequestHandler
+from range_http_server.request_handlers.range_request_handler import RangeRequestHandler
 
 try:
     # Python3
