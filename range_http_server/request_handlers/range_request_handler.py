@@ -1,16 +1,5 @@
-"""
-Use this in the same way as Python's SimpleHTTPServer:
-
-  python -m RangeHTTPServer [port]
-
-The only difference from SimpleHTTPServer is that RangeHTTPServer supports
-'Range:' headers to load portions of files. This is helpful for doing local web
-development with genomic data files, which tend to be to large to load into the
-browser all at once.
-"""
-
-import os
 import re
+
 
 try:
     # Python3
@@ -20,38 +9,7 @@ except ImportError:
     # Python 2
     from SimpleHTTPServer import SimpleHTTPRequestHandler
 
-
-def copy_byte_range(infile, outfile, start=None, stop=None, bufsize=16*1024):
-    """Like shutil.copyfileobj, but only copy a range of the streams.
-
-    Both start and stop are inclusive.
-    """
-    if start is not None: infile.seek(start)
-    while 1:
-        to_read = min(bufsize, stop + 1 - infile.tell() if stop else bufsize)
-        buf = infile.read(to_read)
-        if not buf:
-            break
-        outfile.write(buf)
-
-
-BYTE_RANGE_RE = re.compile(r'bytes=(\d+)-(\d+)?$')
-def parse_byte_range(byte_range):
-    """Returns the two numbers in 'bytes=123-456' or throws ValueError.
-
-    The last number or both numbers may be None.
-    """
-    if byte_range.strip() == '':
-        return None, None
-
-    m = BYTE_RANGE_RE.match(byte_range)
-    if not m:
-        raise ValueError('Invalid byte range %s' % byte_range)
-
-    first, last = [x and int(x) for x in m.groups()]
-    if last and last < first:
-        raise ValueError('Invalid byte range %s' % byte_range)
-    return first, last
+import os
 
 
 class RangeRequestHandler(SimpleHTTPRequestHandler):
@@ -66,7 +24,7 @@ class RangeRequestHandler(SimpleHTTPRequestHandler):
             self.range = None
             return SimpleHTTPRequestHandler.send_head(self)
         try:
-            self.range = parse_byte_range(self.headers['Range'])
+            self.range = parse_byte_range(self.headers['Range'])[0]
         except ValueError as e:
             self.send_error(400, 'Invalid byte range')
             return None
@@ -114,3 +72,46 @@ class RangeRequestHandler(SimpleHTTPRequestHandler):
         # you stop the copying before the end of the file.
         start, stop = self.range  # set in send_head()
         copy_byte_range(source, outputfile, start, stop)
+
+def copy_byte_range(infile, outfile, start=None, stop=None, bufsize=16*1024):
+    """Like shutil.copyfileobj, but only copy a range of the streams.
+
+    Both start and stop are inclusive.
+    """
+    if start is not None: infile.seek(start)
+    while 1:
+        to_read = min(bufsize, stop + 1 - infile.tell() if stop else bufsize)
+        buf = infile.read(to_read)
+        if not buf:
+            break
+        outfile.write(buf)
+
+
+BYTE_RANGE_RE = re.compile(r'bytes=(\d+)-(\d+)?$')
+def parse_byte_range(byte_range):
+    """Returns the two numbers in 'bytes=123-456' or throws ValueError.
+
+    The last number or both numbers may be None.
+    """
+    if byte_range.strip() == '':
+        return [(None, None)]
+
+    #get index of 'bytes=' str
+    start = byte_range.index('bytes=')
+    range_data = byte_range[start+6:]
+    print(range_data)
+    range_list = range_data.split(",")
+
+    ranges = []
+    for range in range_list:
+        if len(range.split("-")) < 2:
+            raise ValueError('Invalid byte range %s' % byte_range)
+        first, last = [x and int(x) for x in range.split("-")]
+        if last == '':
+            last = None
+        if last and last < first:
+            raise ValueError('Invalid byte range %s' % byte_range)
+        
+        ranges.append((first, last))
+
+    return ranges

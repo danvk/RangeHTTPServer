@@ -1,7 +1,5 @@
 # Import RangeHTTPServer from this project, not the global install.
-import sys
-sys.path = ['.'] + sys.path
-from RangeHTTPServer import RangeRequestHandler
+from range_http_server.request_handlers.range_request_handler import RangeRequestHandler
 
 import pytest
 
@@ -16,7 +14,6 @@ except ImportError:
 import requests
 import threading
 import time
-
 
 httpd = None
 server_thread = None
@@ -92,6 +89,17 @@ def test_mid_file_range_request():
         'Content-Range': 'bytes 6-10/17',
         'Content-Length': '5'
         } == headers_of_note(r)
+
+def test_multiple_ranges():
+    r = requests.get('http://localhost:8712/tests/data.txt',
+                     headers={'Range': 'bytes=6-10,12-14'})
+    assert 206 == r.status_code
+    # assert '6789a\nbc' == r.text
+    # assert {
+    #     'Content-Type': 'multipart/byteranges; boundary=',
+    #     'Accept-Ranges': 'bytes',
+    #     'Content-Length': '37'
+    #     } == headers_of_note(r)
 
 
 def test_404():
