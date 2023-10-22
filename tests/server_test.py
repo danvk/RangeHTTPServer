@@ -94,12 +94,20 @@ def test_multiple_ranges():
     r = requests.get('http://localhost:8712/tests/data.txt',
                      headers={'Range': 'bytes=6-10,12-14'})
     assert 206 == r.status_code
-    # assert '6789a\nbc' == r.text
-    # assert {
-    #     'Content-Type': 'multipart/byteranges; boundary=',
-    #     'Accept-Ranges': 'bytes',
-    #     'Content-Length': '37'
-    #     } == headers_of_note(r)
+    response_headers = headers_of_note(r)
+    
+    try:
+
+        assert {
+            'Content-Type': 'multipart/byteranges; boundary=python-boundary-string-1234',
+            'Accept-Ranges': 'bytes',
+            'Content-Length': '213',
+            'Content-Range': 'bytes 6-10/17, 12-14/17'
+            } == headers_of_note(r)
+    except AssertionError as e:
+        print(e)
+
+        
 
 
 def test_404():

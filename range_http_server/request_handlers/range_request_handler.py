@@ -11,7 +11,7 @@ except ImportError:
 
 import os
 
-
+MULTIPART_BOUNDARY_STRING = "python-boundary-string-1234"
 class RangeRequestHandler(SimpleHTTPRequestHandler):
     """Adds support for HTTP 'Range' requests to SimpleHTTPRequestHandler
 
@@ -21,15 +21,15 @@ class RangeRequestHandler(SimpleHTTPRequestHandler):
     """
     def send_head(self):
         if 'Range' not in self.headers:
-            self.range = None
+            self.ranges = None
             return SimpleHTTPRequestHandler.send_head(self)
         try:
-            self.range = parse_byte_range(self.headers['Range'])[0]
+            #self.range = parse_byte_range(self.headers['Range'])[0]
+            self.ranges = parse_byte_range(self.headers['Range'])
         except ValueError as e:
             self.send_error(400, 'Invalid byte range')
             return None
-        first, last = self.range
-
+        
         # Mirroring SimpleHTTPServer.py here
         path = self.translate_path(self.path)
         f = None
@@ -40,21 +40,47 @@ class RangeRequestHandler(SimpleHTTPRequestHandler):
             self.send_error(404, 'File not found')
             return None
 
-        fs = os.fstat(f.fileno())
-        file_len = fs[6]
-        if first >= file_len:
-            self.send_error(416, 'Requested Range Not Satisfiable')
-            return None
+        response_length = 0
+        
+        sent_response = False
+        
+        for range in self.ranges:
 
-        self.send_response(206)
-        self.send_header('Content-type', ctype)
+            first, last = range
 
-        if last is None or last >= file_len:
-            last = file_len - 1
-        response_length = last - first + 1
+            fs = os.fstat(f.fileno())
+            file_len = fs[6]
+            if first >= file_len:
+                self.send_error(416, 'Requested Range Not Satisfiable')
+                return None
+            if last is None or last >= file_len:
+                last = file_len - 1
+            
+            #TODO: Update to incporate boundary string and section headers
+            
+            value = 'bytes %s-%s/%s' % (first, last, file_len)
+            
+            message_length = last - first + 1
+            
+            if sent_response is False:
+                self.send_response(206)
+                if len(self.ranges) == 1:
+                    self.send_header('Content-type', ctype)
+                else:
+                    self.send_header('Content-type', 'multipart/byteranges; boundary='+MULTIPART_BOUNDARY_STRING)
+                sent_response = True
+           
+            if len(self.ranges) > 1:
+                message_length += len( self.get_section_boundary_string(ctype, first, last, file_len) )
+            
+            response_length += message_length
 
-        self.send_header('Content-Range',
-                         'bytes %s-%s/%s' % (first, last, file_len))
+            self.send_header('Content-Range',
+                         value)
+            
+        if len(self.ranges) > 1:
+            response_length += len(("\n--"+MULTIPART_BOUNDARY_STRING+"--").encode())
+        
         self.send_header('Content-Length', str(response_length))
         self.send_header('Last-Modified', self.date_time_string(fs.st_mtime))
         self.end_headers()
@@ -65,13 +91,35 @@ class RangeRequestHandler(SimpleHTTPRequestHandler):
         return SimpleHTTPRequestHandler.end_headers(self)
 
     def copyfile(self, source, outputfile):
-        if not self.range:
+        if not self.ranges:
             return SimpleHTTPRequestHandler.copyfile(self, source, outputfile)
 
         # SimpleHTTPRequestHandler uses shutil.copyfileobj, which doesn't let
         # you stop the copying before the end of the file.
-        start, stop = self.range  # set in send_head()
-        copy_byte_range(source, outputfile, start, stop)
+        #start, stop = self.range  # set in send_head()
+        #get total length from source
+
+        total_byte_length = os.fstat(source.fileno())[6]
+        for range in self.ranges:
+            start, stop = range
+            
+            if len(self.ranges) > 1:
+                boundary_string = self.get_section_boundary_string("text/plain", start, stop, total_byte_length)
+                outputfile.write(boundary_string.encode())
+
+            copy_byte_range(source, outputfile, start, stop)
+            #copy in boundary string
+        
+        if len(self.ranges) > 1:
+            #copy in final boundary string
+            outputfile.write(("\n--"+MULTIPART_BOUNDARY_STRING+"--").encode())
+
+    def get_section_boundary_string(self, content_type, start, end, total):
+        boundary_string = MULTIPART_BOUNDARY_STRING
+        formatted_boundary_string = "\n--"+boundary_string+"\n"
+        content_header = f"Content-Type: {content_type}\n"
+        range_header = "Content-Range: bytes "+str(start)+"-"+str(end)+"/"+str(total)+"\n\n"
+        return formatted_boundary_string+content_header+range_header
 
 def copy_byte_range(infile, outfile, start=None, stop=None, bufsize=16*1024):
     """Like shutil.copyfileobj, but only copy a range of the streams.
