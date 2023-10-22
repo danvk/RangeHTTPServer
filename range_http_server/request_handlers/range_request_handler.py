@@ -79,7 +79,7 @@ class RangeRequestHandler(SimpleHTTPRequestHandler):
                          value)
             
         if len(self.ranges) > 1:
-            response_length += len(("\n--"+MULTIPART_BOUNDARY_STRING+"--").encode())
+            response_length += len(("\r\n--"+MULTIPART_BOUNDARY_STRING+"--").encode())
         
         self.send_header('Content-Length', str(response_length))
         self.send_header('Last-Modified', self.date_time_string(fs.st_mtime))
@@ -112,13 +112,13 @@ class RangeRequestHandler(SimpleHTTPRequestHandler):
         
         if len(self.ranges) > 1:
             #copy in final boundary string
-            outputfile.write(("\n--"+MULTIPART_BOUNDARY_STRING+"--").encode())
+            outputfile.write(("\r\n--"+MULTIPART_BOUNDARY_STRING+"--").encode())
 
     def get_section_boundary_string(self, content_type, start, end, total):
         boundary_string = MULTIPART_BOUNDARY_STRING
-        formatted_boundary_string = "\n--"+boundary_string+"\n"
-        content_header = f"Content-Type: {content_type}\n"
-        range_header = "Content-Range: bytes "+str(start)+"-"+str(end)+"/"+str(total)+"\n\n"
+        formatted_boundary_string = "\r\n--"+boundary_string+"\r\n"
+        content_header = f"Content-Type: {content_type}\r\n"
+        range_header = "Content-Range: bytes "+str(start)+"-"+str(end)+"/"+str(total)+"\r\n\r\n"
         return formatted_boundary_string+content_header+range_header
 
 def copy_byte_range(infile, outfile, start=None, stop=None, bufsize=16*1024):
