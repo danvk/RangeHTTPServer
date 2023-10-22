@@ -34,6 +34,7 @@ class RangeRequestHandler(SimpleHTTPRequestHandler):
         path = self.translate_path(self.path)
         f = None
         ctype = self.guess_type(path)
+        self.ctype = ctype
         try:
             f = open(path, 'rb')
         except IOError:
@@ -104,7 +105,7 @@ class RangeRequestHandler(SimpleHTTPRequestHandler):
             start, stop = range
             
             if len(self.ranges) > 1:
-                boundary_string = self.get_section_boundary_string("text/plain", start, stop, total_byte_length)
+                boundary_string = self.get_section_boundary_string(self.ctype, start, stop, total_byte_length)
                 outputfile.write(boundary_string.encode())
 
             copy_byte_range(source, outputfile, start, stop)
