@@ -1,4 +1,5 @@
 from http.server import HTTPServer
+import socket
 import threading
 import time
 
@@ -8,23 +9,27 @@ import requests
 from RangeHTTPServer import RangeRequestHandler
 
 
-httpd = None
-server_thread = None
-def setup():
+def get_free_port() -> int:
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        s.bind(('', 0))
+        return s.getsockname()[1]
+
+
+@pytest.fixture(scope="module")
+def http_server():
+    port = get_free_port()
     def start_server():
         global httpd
         RangeRequestHandler.protocol_version = 'HTTP/1.0'
-        # TODO(danvk): pick a random, available port
-        httpd = HTTPServer(('', 8712), RangeRequestHandler)
+        httpd = HTTPServer(('', port), RangeRequestHandler)
         httpd.serve_forever()
 
-    global server_thread
     server_thread = threading.Thread(target=start_server)
     server_thread.start()
     time.sleep(1.0)
 
+    yield f'http://localhost:{port}'
 
-def teardown():
     httpd.shutdown()
     server_thread.join()
 
@@ -38,15 +43,15 @@ def headers_of_note(response):
         'Content-Length']}
 
 
-def test_simple_request():
-    r = requests.get('http://localhost:8712/tests/data.txt')
+def test_simple_request(http_server):
+    r = requests.get(f'{http_server}/tests/data.txt')
     assert 200 == r.status_code
     assert '0123456789abcdef\n' == r.text
     assert 'text/plain' == r.headers['content-type']
 
 
-def test_range_request():
-    r = requests.get('http://localhost:8712/tests/data.txt',
+def test_range_request(http_server):
+    r = requests.get(f'{http_server}/tests/data.txt',
                      headers={'Range': 'bytes=0-9'})
     assert 206 == r.status_code
     assert '0123456789' == r.text
@@ -58,8 +63,8 @@ def test_range_request():
         } == headers_of_note(r)
 
 
-def test_open_range_request():
-    r = requests.get('http://localhost:8712/tests/data.txt',
+def test_open_range_request(http_server):
+    r = requests.get(f'{http_server}/tests/data.txt',
                      headers={'Range': 'bytes=10-'})
     assert 206 == r.status_code
     assert 'abcdef\n' == r.text
@@ -71,8 +76,8 @@ def test_open_range_request():
         } == headers_of_note(r)
 
 
-def test_mid_file_range_request():
-    r = requests.get('http://localhost:8712/tests/data.txt',
+def test_mid_file_range_request(http_server):
+    r = requests.get(f'{http_server}/tests/data.txt',
                      headers={'Range': 'bytes=6-10'})
     assert 206 == r.status_code
     assert '6789a' == r.text
@@ -84,20 +89,20 @@ def test_mid_file_range_request():
         } == headers_of_note(r)
 
 
-def test_404():
-    r = requests.get('http://localhost:8712/tests/nonexistent.txt',
+def test_404(http_server):
+    r = requests.get(f'{http_server}/tests/nonexistent.txt',
                      headers={'Range': 'bytes=6-10'})
     assert 404 == r.status_code
 
 
-def test_bad_range():
-    r = requests.get('http://localhost:8712/tests/data.txt',
+def test_bad_range(http_server):
+    r = requests.get(f'{http_server}/tests/data.txt',
                      headers={'Range': 'bytes=abc'})
     assert 400 == r.status_code
 
 
-def test_range_past_eof():
-    r = requests.get('http://localhost:8712/tests/data.txt',
+def test_range_past_eof(http_server):
+    r = requests.get(f'{http_server}/tests/data.txt',
                      headers={'Range': 'bytes=10-100'})
     assert 206 == r.status_code
     assert 'abcdef\n' == r.text
@@ -109,8 +114,8 @@ def test_range_past_eof():
         } == headers_of_note(r)
 
 
-def test_range_at_eof():
-    r = requests.get('http://localhost:8712/tests/data.txt',
+def test_range_at_eof(http_server):
+    r = requests.get(f'{http_server}/tests/data.txt',
                      headers={'Range': 'bytes=16-'})
     assert 206 == r.status_code
     assert '\n' == r.text
@@ -122,7 +127,7 @@ def test_range_at_eof():
         } == headers_of_note(r)
 
 
-def test_range_starting_past_eof():
-    r = requests.get('http://localhost:8712/tests/data.txt',
+def test_range_starting_past_eof(http_server):
+    r = requests.get(f'{http_server}/tests/data.txt',
                      headers={'Range': 'bytes=17-'})
     assert 416 == r.status_code  # "Requested Range Not Satisfiable"
