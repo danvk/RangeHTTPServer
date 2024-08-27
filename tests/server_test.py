@@ -2,13 +2,7 @@ from RangeHTTPServer import RangeRequestHandler
 
 import pytest
 
-try:
-    # Python 3
-    from http.server import HTTPServer
-
-except ImportError:
-    # Python2
-    from BaseHTTPServer import HTTPServer
+from http.server import HTTPServer
 
 import requests
 import threading
