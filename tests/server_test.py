@@ -1,6 +1,3 @@
-# Import RangeHTTPServer from this project, not the global install.
-import sys
-sys.path = ['.'] + sys.path
 from RangeHTTPServer import RangeRequestHandler
 
 import pytest
