@@ -4,7 +4,7 @@ with open('README', encoding='utf8') as fh:
     long_description = fh.read()
 
 setup(name='rangehttpserver',
-      version='1.3.3',
+      version='1.4.0',
       description='SimpleHTTPServer with support for Range requests',
       long_description=long_description,
       long_description_content_type='text/markdown',
