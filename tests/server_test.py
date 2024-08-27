@@ -1,12 +1,11 @@
-from RangeHTTPServer import RangeRequestHandler
-
-import pytest
-
 from http.server import HTTPServer
-
-import requests
 import threading
 import time
+
+import pytest
+import requests
+
+from RangeHTTPServer import RangeRequestHandler
 
 
 httpd = None
