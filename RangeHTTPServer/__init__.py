@@ -86,6 +86,7 @@ class RangeRequestHandler(SimpleHTTPRequestHandler):
         file_len = fs[6]
         if first >= file_len:
             self.send_error(416, 'Requested Range Not Satisfiable')
+            f.close()
             return None
 
         self.send_response(206)
