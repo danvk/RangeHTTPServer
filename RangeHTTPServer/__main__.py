@@ -20,6 +20,18 @@ except ImportError:
 from . import RangeRequestHandler
 
 import argparse
+import contextlib
+import socket
+
+
+class DualStackServer(SimpleHTTPServer.ThreadingHTTPServer):
+    def server_bind(self):
+        # suppress exception when protocol is IPv4
+        with contextlib.suppress(Exception):
+            self.socket.setsockopt(socket.IPPROTO_IPV6, socket.IPV6_V6ONLY, 0)
+        return super().server_bind()
+
+
 parser = argparse.ArgumentParser()
 parser.add_argument('port', action='store',
                     default=8000, type=int,
@@ -28,4 +40,4 @@ parser.add_argument('-b', '--bind', metavar='ADDRESS',
                     help='bind to this address (default: all interfaces)')
 
 args = parser.parse_args()
-SimpleHTTPServer.test(HandlerClass=RangeRequestHandler, port=args.port, bind=args.bind)
+SimpleHTTPServer.test(HandlerClass=RangeRequestHandler, ServerClass=DualStackServer, port=args.port, bind=args.bind)
